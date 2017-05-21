@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
@@ -42,7 +42,7 @@ if __name__=="__main__":
     print ("Creating updates for network weights using GD and mometum")
     alpha            = 0.9 #momentum coefficient
     weight_decay     = 0.0005 #weight decay for regularization
-    for name in net1.name2layer.keys():
+    for name in list(net1.name2layer.keys()):
         if net1.tied[name] == False:#only if the parameters are not tied, update them
             for param in net1.name2layer[name].params:
                 grad_clf = T.grad(cost_clf,param)#derivative of the classification cost w.r.t param

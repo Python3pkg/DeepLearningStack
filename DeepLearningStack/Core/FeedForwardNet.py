@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import os
 import sys
 import time
@@ -72,7 +72,7 @@ class FeedForwardNet(object):
         """
         self.supplied_inputs      = dict()#dict of name:symvar
         self.output_dims          = dict()#dictionary of inp:size for the input
-        for inp_name in inputs.keys():
+        for inp_name in list(inputs.keys()):
             self.supplied_inputs[inp_name]  = inputs[inp_name][0] 
             self.output_dims[inp_name]      = inputs[inp_name][1] 
         tree                      = ET.parse(configFile)
@@ -96,9 +96,9 @@ class FeedForwardNet(object):
                 tie_from              = layer.find("tie").text if layer.find("tie") is not None else None
                 #check if all the inputs to the network are already supplied
                 inputs_text           = [inp.text for inp in layer_inputs]
-                input_satiesfied      = [inp.text in self.supplied_inputs.keys() for inp in layer_inputs]
+                input_satiesfied      = [inp.text in list(self.supplied_inputs.keys()) for inp in layer_inputs]
                 #if a layer's params are tied to another layer, make sure the first layer is already created
-                if tie_from != None and tie_from not in self.name2layer.keys():
+                if tie_from != None and tie_from not in list(self.name2layer.keys()):
                     continue
                 #if layer_type in ["Concatenate","DepthConcat","NaiveBayesBeliefUpdate","DirichletLayer","ElementWise","GaussianObs"]:
                 #check for all inputs
@@ -111,11 +111,11 @@ class FeedForwardNet(object):
                         symvar_inputs = symvar_inputs[0]
                         symvar_sizes  = symvar_sizes[0]
                     #if cloning and the layer is found in the source network, then initialize this layer from the clone
-                    if clone_from!=None and (layer_name in clone_from.name2layer.keys()):
+                    if clone_from!=None and (layer_name in list(clone_from.name2layer.keys())):
                         newLayer              = type2class[layer_type](layer,symvar_inputs,symvar_sizes,rng,clone_from=clone_from.name2layer[layer_name])
                         self.tied[layer_name] = clone_from.tied[layer_name]#this layer is cloned  
                     #else if it is tied, then create it using the tied network
-                    elif tie_from!=None and (layer_name in self.name2layer.keys()):#if the parameters are tied to gether
+                    elif tie_from!=None and (layer_name in list(self.name2layer.keys())):#if the parameters are tied to gether
                         newLayer              = type2class[layer_type](layer,symvar_inputs,symvar_sizes,rng,clone_from=self.name2layer[tie_from])
                         self.tied[layer_name] = True 
                     #otherwise simply create it with regular initialization of parameters

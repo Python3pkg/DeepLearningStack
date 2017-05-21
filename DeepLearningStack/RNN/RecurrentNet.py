@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import os
 import sys
 import time
@@ -111,7 +111,7 @@ class RecurrentNet(object):
         self.name2layer           = { 0:{} }#each time step is a dictionary
         self.params               = params#the parameters are only from the time step 0, since the rest of time steps are tied to timestep 0 
         self.output_dims          = output_dims#this is only for time step 0, since the rest of time steps are copies of time step 0
-        for k in name2layer.keys():
+        for k in list(name2layer.keys()):
             self.layers[0].append(name2layer[k])
             self.name2layer[0][k] = name2layer[k]
         self.tied                 = tied#this is just for time step 0, since all the parameters in time steps > 0 are tied to time step 0
@@ -121,7 +121,7 @@ class RecurrentNet(object):
             #store the layers in the object instance
             self.layers[i]        = []
             self.name2layer[i]    = dict() 
-            for k in name2layer.keys():
+            for k in list(name2layer.keys()):
                 self.layers[i].append(name2layer[k])
                 self.name2layer[i][k] = name2layer[k]
 
@@ -172,10 +172,10 @@ class RecurrentNet(object):
                 #indicates if the parameters have to be the same as some other layer
                 tie_from                     = layer.find("tie").text if layer.find("tie") is not None else None
                 #check if all the inputs to the network are already supplied
-                nonrecrnt_ins_satiesfied     = [inp.text in supplied_inputs.keys() for inp in nonrecrnt_ins]
-                rcrnt_ins_satiesfied         = [inp.text in rcrnt_inputs.keys() for inp in recrnt_ins]
+                nonrecrnt_ins_satiesfied     = [inp.text in list(supplied_inputs.keys()) for inp in nonrecrnt_ins]
+                rcrnt_ins_satiesfied         = [inp.text in list(rcrnt_inputs.keys()) for inp in recrnt_ins]
                 #if a layer's params are tied to another layer, make sure the first layer is already created
-                if tie_from != None and tie_from not in name2layer.keys():
+                if tie_from != None and tie_from not in list(name2layer.keys()):
                     continue
                 #check if all recurrent and non-recurrent inputs are satisfied 
                 if np.all(nonrecrnt_ins_satiesfied) and np.all(rcrnt_ins_satiesfied): 
@@ -198,11 +198,11 @@ class RecurrentNet(object):
                     #print("layer sizes:",symvar_sizes)
                     #priority of weight cloning: clone_from > tie > normal
                     #if tying from the previous time step 
-                    if net_prev_timestep!=None and (layer_name in net_prev_timestep.keys()):
+                    if net_prev_timestep!=None and (layer_name in list(net_prev_timestep.keys())):
                         newLayer              = type2class[layer_type](layer,symvar_inputs,symvar_sizes,rng,clone_from=net_prev_timestep[layer_name])
                         tied[layer_name]      = True#if this is a copy from the previous time step, then it is tied 
                     #tying from the current time step
-                    elif tie_from!=None and (layer_name in name2layer.keys()):#if the parameters are tied to gether
+                    elif tie_from!=None and (layer_name in list(name2layer.keys())):#if the parameters are tied to gether
                         newLayer              = type2class[layer_type](layer,symvar_inputs,symvar_sizes,rng,clone_from=name2layer[tie_from])
                         tied[layer_name]      = True#if this is a tie from current time step, 
                     #otherwise simply create it with regular initialization of parameters
@@ -230,7 +230,7 @@ class RecurrentNet(object):
                         if out.attrib["feedback_output"].lower()=="yes":
                             rcrnt_output[out.text]      = (newLayer.output[out.text], newLayer.output_shape[out.text])
                     #the default output of the layer
-                    if "feedback_output" in layer.attrib.keys():
+                    if "feedback_output" in list(layer.attrib.keys()):
                         if layer.attrib["feedback_output"].lower()=="yes":
                             if type(newLayer.output)==dict:
                                 rcrnt_output[layer_name] = (newLayer.output[layer_name], newLayer.output_shape[layer_name])

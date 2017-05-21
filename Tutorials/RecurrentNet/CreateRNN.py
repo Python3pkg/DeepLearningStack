@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
@@ -47,10 +47,10 @@ if __name__=="__main__":
     
     #inputs to the graph consists of the recurrent inputs for time step 0 and non-recurrent inputs for all time steps
     inputs            = [nonrcrnt_ins[k]["input"][0] for k in range(len(nonrcrnt_ins))]
-    for k in rcrnt_ins.keys():
+    for k in list(rcrnt_ins.keys()):
         inputs.append(rcrnt_ins[k][0])
     #outputs of the network include the outputs for each time step
-    outputs           = [rnn.name2layer[i]["fc2"].output for i in rnn.name2layer.keys()]
+    outputs           = [rnn.name2layer[i]["fc2"].output for i in list(rnn.name2layer.keys())]
     print("compiling the function")
     f                 = theano.function(inputs=inputs,outputs=outputs)
     #draw the RNN

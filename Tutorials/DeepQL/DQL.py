@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import sys
 import select
 import tty
@@ -182,7 +182,7 @@ for exp_num in range(20):
         sorted_idx = np.argsort(poses)
         track_indices[t] = idx[sorted_idx]
     accuracy = np.zeros(n_test_moves)
-    for t in track_indices.keys():
+    for t in list(track_indices.keys()):
         #    print"for track:",t
         #    print"number of frames:",len(track_indices[t])
         belief   = np.ones(C)
@@ -266,7 +266,7 @@ for exp_num in range(20):
                 rot_idx        = rot.copy().astype(np.int32)
                 assert(rot_idx.shape[0]==batch_size)
                 #histogram of actions, only for debugging
-                hst            = np.histogram(rot_idx,bins=range(0,num_actions))[0]
+                hst            = np.histogram(rot_idx,bins=list(range(0,num_actions)))[0]
                 for kk in range(rot_idx.shape[0]):
                     move_hist[rot_idx[kk]] += 1
                 #calculate target pose for each action
@@ -286,7 +286,7 @@ for exp_num in range(20):
                 #reward if correctly classified
                 prot_max      += R * (pred_rslt==y1)* (srtd_beliefs[:,-1] - srtd_beliefs[:,-2]).reshape(-1)
                 prot_max      -= R * (pred_rslt!=y1)
-                prot_max       = alpha * prot_max + (1-alpha) * prot[rot_idx,range(batch_size)].reshape(-1)
+                prot_max       = alpha * prot_max + (1-alpha) * prot[rot_idx,list(range(batch_size))].reshape(-1)
                 corrects[mv,:] += (pred_rslt==y)
                 #update the target value, based on Q-learning update rule
                 input_shared.set_value(beliefs.T.astype(theano.config.floatX))
@@ -315,7 +315,7 @@ for exp_num in range(20):
                 if mv>0:
                     c          = np.sqrt(np.mean((prot.max(axis=0).reshape(-1) - prev_actval)**2))
                     val_costs.append(c)
-                prev_actval    = prot[rot,range(batch_size)].reshape(-1)
+                prev_actval    = prot[rot,list(range(batch_size))].reshape(-1)
                 rot_idx        = rot.copy().astype(np.int32)
                 for kk in range(rot_idx.shape[1]):
                     test_move_hist[rot_idx[0,kk]] += 1
@@ -367,7 +367,7 @@ for exp_num in range(20):
                 test_poses_hist.append(p)
                 beliefs        = beliefs * x
                 beliefs        = beliefs / beliefs.sum(axis=1).reshape([-1,1])
-            hst            = np.histogram(move_hist.reshape(-1),bins=range(0,num_actions))[0]
+            hst            = np.histogram(move_hist.reshape(-1),bins=list(range(0,num_actions)))[0]
         print("test:",corrects.sum(axis=1) / float(test_data.x.shape[0]))
         test_accuracies.append(corrects.sum(axis=1) / float(test_data.x.shape[0]))
     print("##################################################")
@@ -392,7 +392,7 @@ i = 0
 seq_acc = []
 rnd_acc = []
 dpq_acc = []
-for i in experiment_data.keys():
+for i in list(experiment_data.keys()):
     seq_acc.append(experiment_data[i]["test_seq_acc"].reshape([1,-1]))
     rnd_acc.append(experiment_data[i]["test_rnd_acc"].reshape([1,-1]))
     dpq_acc.append(experiment_data[i]["test_dpq_acc"].reshape([1,-1]))
@@ -405,11 +405,11 @@ dpq_acc = np.concatenate(dpq_acc,axis=0)
 plt.figure(1)
 plt.hold(True)
 i = 0
-plt.errorbar(x=range(n_test_moves),y=dpq_acc.mean(axis=0),xerr=0,yerr=dpq_acc.std(axis=0),color=colors[i%len(colors)],linestyle=linestyle[i%len(linestyle)],label="DeepQ"+str(i),marker=marker[i%len(marker)],linewidth=4.)
+plt.errorbar(x=list(range(n_test_moves)),y=dpq_acc.mean(axis=0),xerr=0,yerr=dpq_acc.std(axis=0),color=colors[i%len(colors)],linestyle=linestyle[i%len(linestyle)],label="DeepQ"+str(i),marker=marker[i%len(marker)],linewidth=4.)
 i += 1
-plt.errorbar(x=range(n_test_moves),y=seq_acc.mean(axis=0),xerr=0,yerr=seq_acc.std(axis=0),color=colors[i%len(colors)],linestyle=linestyle[i%len(linestyle)],label="sequential",marker=marker[i%len(marker)],linewidth=4.)
+plt.errorbar(x=list(range(n_test_moves)),y=seq_acc.mean(axis=0),xerr=0,yerr=seq_acc.std(axis=0),color=colors[i%len(colors)],linestyle=linestyle[i%len(linestyle)],label="sequential",marker=marker[i%len(marker)],linewidth=4.)
 i += 1
-plt.errorbar(x=range(n_test_moves),y=rnd_acc.mean(axis=0),xerr=0,yerr=rnd_acc.std(axis=0),color=colors[i%len(colors)],linestyle=linestyle[i%len(linestyle)],label="random",marker=marker[i%len(marker)],linewidth=4.)
+plt.errorbar(x=list(range(n_test_moves)),y=rnd_acc.mean(axis=0),xerr=0,yerr=rnd_acc.std(axis=0),color=colors[i%len(colors)],linestyle=linestyle[i%len(linestyle)],label="random",marker=marker[i%len(marker)],linewidth=4.)
 
 handles, labels = plt.gca().get_legend_handles_labels()
 plt.gca().legend(handles[::-1], labels[::-1],loc=4)
@@ -418,7 +418,7 @@ plt.ylabel("Accuracy")
 for axis in ['top','bottom','left','right']:
     plt.gca().spines[axis].set_linewidth(2.0)
 i += 1
-plt.xticks(range(n_test_moves+1))
+plt.xticks(list(range(n_test_moves+1)))
 
 #######################################################
 ##       PLOTTING RMSE 

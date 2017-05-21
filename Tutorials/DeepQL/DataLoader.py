@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import os
 import sys
 import time
@@ -77,7 +77,7 @@ class DataLoader(object):
 
     """ returns the next mini batch according to the internal counter"""
     def get_next_minibatch(self):
-        rng                    = range(self.minibatch_idx,self.minibatch_idx+self.minibatch_size)
+        rng                    = list(range(self.minibatch_idx,self.minibatch_idx+self.minibatch_size))
         self.minibatch_idx    += self.minibatch_size
         if self.minibatch_idx >= self.x.shape[0]:#automatically reset the mini batch index to 0 if larger than the data size
             self.minibatch_idx = 0
@@ -106,10 +106,10 @@ class DataLoader(object):
     def adapt_labels(self,obj2label):
         #check if both dictionaries have the same set of object names
         #make sure that supplied object names are a superset of current object names
-        for obj in self.obj2label.keys():
-            assert(obj in obj2label.keys())
+        for obj in list(self.obj2label.keys()):
+            assert(obj in list(obj2label.keys()))
         newy = self.y.copy()
-        for obj in self.obj2label.keys():
+        for obj in list(self.obj2label.keys()):
             idx        = np.where(self.y==self.obj2label[obj])
             newy[idx] = obj2label[obj]
         self.y = newy
